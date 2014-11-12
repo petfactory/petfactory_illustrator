@@ -1,0 +1,1 @@
+﻿ // open a new blank documentvar doc = app.documents.add(); // the default layervar default_layer = doc.layers[0];default_layer.name = "default_layer";// the default artboarddefault_artboard = doc.artboards[0];default_artboard.name = "default_artboard";/*for (x in doc){    $.writeln(x);}*/
