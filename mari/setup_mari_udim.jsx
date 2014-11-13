@@ -70,7 +70,6 @@ function create_udim_tiles(size, doc, create_artboard, add_graphics_layer)
         // get the udim
         udim = last_part.slice(last_part.length-4, last_part.length);
         var inc = udim - 1001;
-        $.writeln(inc);
    
         // Place the image on the artboard
         var placed_img = udim_layer.placedItems.add()
@@ -81,12 +80,7 @@ function create_udim_tiles(size, doc, create_artboard, add_graphics_layer)
         placed_img.left = start_x + left;
         placed_img.top = start_y + top;
         placed_img.width = placed_img.height = size;
-        /*
-        for(x in placed_img)
-        {
-            $.writeln(x)
-        }
-        */
+
         if(create_artboard)
         {
             bounds = placed_img.geometricBounds;
