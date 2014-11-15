@@ -16,7 +16,8 @@ function create_new_udim_document(tile_size)
     
     if (dir)
     {
-        create_udim_tiles(size=tile_size, doc=active_doc, create_artboard=true, add_graphics_layer=true)
+        var file_list = dir.getFiles();
+        create_udim_tiles(img_list=file_list, size=tile_size, doc=active_doc, create_artboard=true, add_graphics_layer=true)
     }
 
     // If we have more than one artboard, remove the first
@@ -39,36 +40,49 @@ function add_to_udim_document(tile_size)
     if (dir)
     {
         var active_doc = app.activeDocument;
-        create_udim_tiles(size=tile_size, doc=active_doc, create_artboard=false, add_graphics_layer=false)
+        var file_list = dir.getFiles();
+        create_udim_tiles(img_list=file_list, size=tile_size, doc=active_doc, create_artboard=false, add_graphics_layer=false)
     }   
 }
-function create_udim_tiles(size, doc, create_artboard, add_graphics_layer)
+function basename(path)
 {
+    return path.replace(/\\/g,'/').replace( /.*\//, '' );
+}
+ 
+function dirname(path) 
+{
+    return path.replace(/\\/g,'/').replace(/\/[^\/]*$/, '');
+}
+
+function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_layer)
+{ 
     var udim_layer = doc.layers.add();
     udim_layer.name = "udim";
-    
-    var img_list = dir.getFiles();
+
     var num_img = img_list.length;
     //num_img = 2;
+
+    var pattern = /^[\w \.]*?(?:\.|_)([\d]{4})(.jpg|.jpeg|.tif|.tiff|.png)$/;
 
     for(var i = 0; i < num_img; i++)
     {
         file_path = img_list[i];
-        var file_name = file_path.name.toLowerCase();
+        file_name = basename(file_path.toString());
 
-        // skip everythin but tif images
-        if(file_name.indexOf(".tif") == -1)
+        var match_array = file_name.match(pattern);
+
+        if(match_array)
         {
-            continue
+            udim = match_array[1];
+            $.writeln(udim);
+        }
+    
+        else
+        { 
+            //alert('skipping ' + file_name);
+            continue;
         }
 
-        split_name = file_name.split('.');
-        
-        // get the part before the extension
-        last_part = split_name[split_name.length-2]
-        
-        // get the udim
-        udim = last_part.slice(last_part.length-4, last_part.length);
         var inc = udim - 1001;
    
         // Place the image on the artboard
@@ -95,7 +109,7 @@ function create_udim_tiles(size, doc, create_artboard, add_graphics_layer)
     {
         var new_layer = doc.layers.add();
         new_layer.name = "awesome graphics";
-    }  
+    } 
 }
 
 var size_list = ["128", "256", "512", "1024", "2048", "4096"];
