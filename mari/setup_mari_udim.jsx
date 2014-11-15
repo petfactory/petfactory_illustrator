@@ -120,7 +120,13 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
     var keys = [];
     for(var k in udim_obj) keys.push(Number(k));
     keys.sort();
-    $.writeln(keys);
+    //$.writeln(keys);
+    
+    // create the artboards here
+    for (i in keys)
+    {
+        $.writeln(keys[i]);
+    }
 }
 
 var size_list = ["128", "256", "512", "1024", "2048", "4096"];
