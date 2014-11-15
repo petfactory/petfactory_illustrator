@@ -55,7 +55,10 @@ function dirname(path)
 }
 
 function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_layer)
-{ 
+{
+    // object to store UDIM > file path as (key > value pairs)
+    var udim_obj = {};
+    
     var udim_layer = doc.layers.add();
     udim_layer.name = "udim";
 
@@ -74,7 +77,8 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
         if(match_array)
         {
             udim = match_array[1];
-            $.writeln(udim);
+            // udim (key) > file_path (value)
+            udim_obj[udim] = file_path;
         }
     
         else
@@ -102,7 +106,8 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
             art_board.name = udim;      
         }  
     }
-
+    
+    // when all images are placed, lock the udim layer
     udim_layer.locked = true;
     
     if(add_graphics_layer)
@@ -110,6 +115,12 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
         var new_layer = doc.layers.add();
         new_layer.name = "awesome graphics";
     } 
+
+    // todo build from the sorted udim_obj instead
+    var keys = [];
+    for(var k in udim_obj) keys.push(Number(k));
+    keys.sort();
+    $.writeln(keys);
 }
 
 var size_list = ["128", "256", "512", "1024", "2048", "4096"];
