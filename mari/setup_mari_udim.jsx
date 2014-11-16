@@ -67,6 +67,7 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
 
     var pattern = /^[\w \.]*?(?:\.|_)([\d]{4})(.jpg|.jpeg|.tif|.tiff|.png)$/;
 
+    // build the udim dict
     for(var i = 0; i < num_img; i++)
     {
         file_path = img_list[i];
@@ -76,9 +77,8 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
 
         if(match_array)
         {
-            udim = match_array[1];
             // udim (key) > file_path (value)
-            udim_obj[udim] = file_path;
+            udim_obj[match_array[1]] = file_path;
         }
     
         else
@@ -86,12 +86,22 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
             //alert('skipping ' + file_name);
             continue;
         }
-
+    }
+    
+    // sort the udim dict
+    var keys = [];
+    for(var k in udim_obj) keys.push(Number(k));
+    keys.sort();
+    
+    // create the artboards here
+    for (i in keys)
+    {        
+        var udim = keys[i];
         var inc = udim - 1001;
    
         // Place the image on the artboard
         var placed_img = udim_layer.placedItems.add()
-        placed_img.file = img_list[i];
+        placed_img.file = udim_obj[udim];
         
         var left = (inc%num_col)*size;
         var top = Math.floor(inc/num_col)*size;
@@ -104,9 +114,9 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
             bounds = placed_img.geometricBounds;
             var art_board = doc.artboards.add(bounds);
             art_board.name = udim;      
-        }  
+        }      
     }
-    
+
     // when all images are placed, lock the udim layer
     udim_layer.locked = true;
     
@@ -116,17 +126,7 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
         new_layer.name = "awesome graphics";
     } 
 
-    // todo build from the sorted udim_obj instead
-    var keys = [];
-    for(var k in udim_obj) keys.push(Number(k));
-    keys.sort();
-    //$.writeln(keys);
-    
-    // create the artboards here
-    for (i in keys)
-    {
-        $.writeln(keys[i]);
-    }
+
 }
 
 var size_list = ["128", "256", "512", "1024", "2048", "4096"];
