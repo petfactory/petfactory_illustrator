@@ -3,6 +3,63 @@ var num_col = 10;
 var start_x = -7000;
 var start_y = -5000;
 
+function zoom_to_fit(doc, bounds)
+{
+    var left = bounds[0];
+    var top = bounds[1];
+    var right = bounds[2];
+    var bottom = bounds[3];
+
+    var sel_width = right - left;
+    var sel_height = top - bottom;
+    var mid_x = left + sel_width*.5;
+    var mid_y = bottom + sel_height*.5;
+
+    // zoom 100%
+    doc.views[0].zoom = 1;
+    screen_bounds = doc.views[0].bounds;
+    screen_width = screen_bounds[2] - screen_bounds[0]; // right - left
+    screen_height = screen_bounds[1] - screen_bounds[3]; // top - bottom
+    screen_ratio = screen_height/screen_width;
+     
+    zoom_factor_w = screen_width/sel_width;
+    zoom_factor_h = screen_height/sel_height;
+
+    //decide which proportion is larger...
+    if((sel_width*screen_ratio) >= sel_height)
+    {
+        var zoom_factor = zoom_factor_w;
+    }
+    else
+    {
+        var zoom_factor = zoom_factor_h;
+    }
+
+    // center the view
+    doc.views[0].centerPoint =  [mid_x, mid_y];
+    doc.views[0].zoom = zoom_factor *.85;
+}
+
+function get_item_bounds(items)
+{
+    var bounds = items[0].visibleBounds;
+    var left = bounds[0];
+    var top = bounds[1];
+    var right = bounds[2];
+    var bottom = bounds[3];
+
+    for (i in items)
+    {
+        bounds = items[i].visibleBounds;
+        
+        if (bounds[0] < left) left = bounds[0];
+        if (bounds[1] > top) top = bounds[1];
+        if (bounds[2] > right) right = bounds[2];
+        if (bounds[3] < bottom) bottom = bounds[3];
+    }
+    return([left, top, right, bottom]);
+}
+
 function create_new_udim_document(tile_size)
 {
     // open a new blank document
@@ -17,7 +74,9 @@ function create_new_udim_document(tile_size)
     if (dir)
     {
         var file_list = dir.getFiles();
-        create_udim_tiles(img_list=file_list, size=tile_size, doc=active_doc, create_artboard=true, add_graphics_layer=true)
+        var placed_items = create_udim_tiles(img_list=file_list, size=tile_size, doc=active_doc, create_artboard=true, add_graphics_layer=true)
+        var bounds = get_item_bounds(placed_items);
+        zoom_to_fit(active_doc, bounds)
     }
 
     // If we have more than one artboard, remove the first
@@ -58,6 +117,7 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
 {
     // object to store UDIM > file path as (key > value pairs)
     var udim_obj = {};
+    var udim_placed_item_array = [];
     
     var udim_layer = doc.layers.add();
     udim_layer.name = "udim";
@@ -102,6 +162,7 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
         // Place the image on the artboard
         var placed_img = udim_layer.placedItems.add()
         placed_img.file = udim_obj[udim];
+        udim_placed_item_array.push(placed_img)
         
         var left = (inc%num_col)*size;
         var top = Math.floor(inc/num_col)*size;
@@ -124,9 +185,9 @@ function create_udim_tiles(img_list, size, doc, create_artboard, add_graphics_la
     {
         var new_layer = doc.layers.add();
         new_layer.name = "awesome graphics";
-    } 
+    }
 
-
+    return(udim_placed_item_array);
 }
 
 var size_list = ["128", "256", "512", "1024", "2048", "4096"];
